@@ -27,7 +27,7 @@ package_install () {
   libvirt-daemon-kvm \
   kubectl \
   bash-completion \
-  bash-completion-extras
+  bash-completion-extras \
   virt-install
 }
 repo_setup () {
@@ -44,6 +44,8 @@ enabled=1
 gpgcheck=1
 gpgkey=https://dl.google.com/linux/linux_signing_key.pub
 EOF
+
+  # Add kubernetes repo.
   cat > /etc/yum.repos.d/kubernetes.repo << EOF
 [kubernetes]
 name=Kubernetes
@@ -80,6 +82,12 @@ case "$1" in
     repo_setup
     ;;
   *)
-    echo $"Tail this file for usage details."
+    echo "Usage $0 <command>"
+    echo "  Available commands are:"
+    echo "    all"
+    echo "    docker_driver"
+    echo "    libvert_setup"
+    echo "    package_install"
+    echo "    repo_setup"
     ;;
 esac
