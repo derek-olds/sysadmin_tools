@@ -12,11 +12,11 @@ image_file () {
 }
 
 boot_installer () {
-    kvm --name installer -m 2048 -hda $1 -cdrom $2 -boot d
+    /usr/libexec/qemu-kvm --name installer -m 2048 -hda $1 -cdrom $2 -boot d
 }
 
 boot_image () {
-    kvm --name Test_Image -m 2048 -hda $1 -boot c
+    /usr/libexec/qemu-kvm --name Test_Image -m 2048 -hda $1 -boot c
 }
 
 
@@ -48,6 +48,7 @@ case "$1" in
     boot_image $2
     ;;
   *)
-    echo $"Usage: $0 <image file name> <path to iso>"
+    echo $"Usage: $0 {image_file|boot_installer|boot_image} \
+         <image file name> <path to iso>"
     ;;
 esac   

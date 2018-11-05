@@ -24,7 +24,11 @@ package_install () {
   google-chrome-stable \
   git \
   qemu-kvm \
-  libvirt-daemon-kvm
+  libvirt-daemon-kvm \
+  kubectl \
+  bash-completion \
+  bash-completion-extras
+  virt-install
 }
 repo_setup () {
   # Add EPEL repo.
@@ -39,6 +43,15 @@ baseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64
 enabled=1
 gpgcheck=1
 gpgkey=https://dl.google.com/linux/linux_signing_key.pub
+EOF
+  cat > /etc/yum.repos.d/kubernetes.repo << EOF
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 }
 
