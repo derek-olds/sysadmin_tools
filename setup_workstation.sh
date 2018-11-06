@@ -19,6 +19,7 @@ libvirt_setup () {
   newgrp libvirt
 }
 package_install () {
+  yum update
   yum install -y \
   screen \
   google-chrome-stable \
@@ -28,7 +29,10 @@ package_install () {
   kubectl \
   bash-completion \
   bash-completion-extras \
-  virt-install
+  virt-install \
+  libvirt \
+  libvirt-python \
+  libguestfs-tools
 }
 repo_setup () {
   # Add EPEL repo.
@@ -56,7 +60,10 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 }
-
+os_setup () {
+  systemctl enable sshd
+  systemctl start sshd
+}
 ## Main ##
 
 # This script requires elevated privileges.
@@ -68,12 +75,16 @@ case "$1" in
     package_install
     docker_driver
     libvirt_setup
+    os_setup
     ;;
   docker_driver)
     docker_driver
     ;;
   libvirt_setup)
     libvirt_setup
+    ;;
+  os_setup)
+    os_setup
     ;;
   package_install)
     package_install
@@ -87,6 +98,7 @@ case "$1" in
     echo "    all"
     echo "    docker_driver"
     echo "    libvert_setup"
+    echo "    os_setup"
     echo "    package_install"
     echo "    repo_setup"
     ;;
