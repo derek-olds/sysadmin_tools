@@ -13,10 +13,33 @@ docker_driver () {
   # The kvm2 driver needs to be in the path for kubctl to use it.
   curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2
   install docker-machine-driver-kvm2 /usr/local/bin/
+  rm -f docker-machine-driver-kvm2
 }
 libvirt_setup () {
   usermod -a -G libvirt $(whoami)
   newgrp libvirt
+}
+network_setup () {
+  ethernet=$(nmcli -t c s | grep ethernet | cut -d":" -f4)
+  bridge=$(nmcli -t c s | grep bridge | cut -d":" -f4)
+  cat > /etc/sysconfig/network-scripts/ifcfg-"${ethernet}" << EOF
+BRIDGE=virbr0
+EOF
+  cat > /etc/sysconfig/network-scripts/ifcfg-virbr0 << EOF
+DEVICE="virbr0"
+# I am getting ip from DHCP server #
+BOOTPROTO="dhcp"
+IPV6INIT="yes"
+IPV6_AUTOCONF="yes"
+ONBOOT="yes"
+TYPE="Bridge"
+DELAY="0"
+EOF
+systemctl restart NetworkManager
+}
+os_setup () {
+  systemctl enable sshd
+  systemctl start sshd
 }
 package_install () {
   yum update
@@ -60,10 +83,6 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 }
-os_setup () {
-  systemctl enable sshd
-  systemctl start sshd
-}
 ## Main ##
 
 # This script requires elevated privileges.
@@ -76,12 +95,16 @@ case "$1" in
     docker_driver
     libvirt_setup
     os_setup
+    network_setup
     ;;
   docker_driver)
     docker_driver
     ;;
   libvirt_setup)
     libvirt_setup
+    ;;
+  network_setup)
+    network_setup
     ;;
   os_setup)
     os_setup
@@ -98,6 +121,7 @@ case "$1" in
     echo "    all"
     echo "    docker_driver"
     echo "    libvert_setup"
+    echo "    network_setup"
     echo "    os_setup"
     echo "    package_install"
     echo "    repo_setup"
