@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-set -e 
+set -e
 # A script to set up a developement environment on a New Centos7 Workstation.
 
 ## Functions ##
@@ -42,19 +42,19 @@ os_setup () {
 }
 package_install () {
   yum update
-  yum install -y \
-  screen \
-  google-chrome-stable \
-  git \
-  qemu-kvm \
-  libvirt-daemon-kvm \
-  kubectl \
-  bash-completion \
-  bash-completion-extras \
-  virt-install \
-  libvirt \
-  libvirt-python \
-  libguestfs-tools
+  yum install -y\
+  bash-completion\
+  bash-completion-extras\
+  git\
+  google-chrome-stable\
+  kubectl\
+  libguestfs-tools\
+  libvirt\
+  libvirt-daemon-kvm\
+  libvirt-python\
+  qemu-kvm\
+  screen\
+  virt-install
 }
 repo_setup () {
   # Add EPEL repo.
