@@ -21,7 +21,6 @@ libvirt_setup () {
 }
 network_setup () {
   ethernet=$(nmcli -t c s | grep ethernet | cut -d":" -f4)
-  bridge=$(nmcli -t c s | grep bridge | cut -d":" -f4)
   cat > /etc/sysconfig/network-scripts/ifcfg-"${ethernet}" << EOF
 BRIDGE=virbr0
 EOF
