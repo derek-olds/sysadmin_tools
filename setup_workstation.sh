@@ -54,7 +54,8 @@ package_install () {
   libvirt-python\
   qemu-kvm\
   screen\
-  virt-install
+  virt-install\
+  vnc
 }
 repo_setup () {
   # Add EPEL repo.
