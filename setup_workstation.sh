@@ -19,22 +19,13 @@ libvirt_setup () {
   usermod -a -G libvirt $(whoami)
   newgrp libvirt
 }
-network_setup () {
-  ethernet=$(nmcli -t c s | grep ethernet | cut -d":" -f4)
-  cat > /etc/sysconfig/network-scripts/ifcfg-"${ethernet}" << EOF
-BRIDGE=virbr0
+host_network_setup () {
+  virsh net-define /usr/share/libvirt/networks/default.xml
+  virsh net-autostart default
+  virsh net-start default
+  cat > /etc/sysctl.d/98-libvirt.conf << EOF
+net.ipv4.ip_forward = 1
 EOF
-  cat > /etc/sysconfig/network-scripts/ifcfg-virbr0 << EOF
-DEVICE="virbr0"
-# I am getting ip from DHCP server #
-BOOTPROTO="dhcp"
-IPV6INIT="yes"
-IPV6_AUTOCONF="yes"
-ONBOOT="yes"
-TYPE="Bridge"
-DELAY="0"
-EOF
-systemctl restart NetworkManager
 }
 os_setup () {
   systemctl enable sshd
@@ -89,13 +80,13 @@ EOF
 check_root $@
 
 case "$1" in
-  all)
+  host)
     repo_setup
     package_install
     docker_driver
     libvirt_setup
     os_setup
-    network_setup
+    host_network_setup
     ;;
   docker_driver)
     docker_driver
@@ -103,8 +94,8 @@ case "$1" in
   libvirt_setup)
     libvirt_setup
     ;;
-  network_setup)
-    network_setup
+  host_network_setup)
+    host_network_setup
     ;;
   os_setup)
     os_setup
@@ -118,10 +109,10 @@ case "$1" in
   *)
     echo "Usage $0 <command>"
     echo "  Available commands are:"
-    echo "    all"
+    echo "    host"
     echo "    docker_driver"
     echo "    libvert_setup"
-    echo "    network_setup"
+    echo "    host_network_setup"
     echo "    os_setup"
     echo "    package_install"
     echo "    repo_setup"
