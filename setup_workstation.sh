@@ -32,7 +32,7 @@ os_setup () {
   systemctl start sshd
 }
 package_install () {
-  yum update
+  yum update -y
   yum install -y\
   bash-completion\
   bash-completion-extras\
