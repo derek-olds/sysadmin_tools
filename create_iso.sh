@@ -19,16 +19,30 @@ make_iso_file () {
 
 setup_build_env () {
   # install packages
-  # Create BUILD dir and mount points
-  # Mount iso
+  yum install -y \
+    syslinux \
+    isomd5sum \
+    genisoimage
+  # mount iso
+  
   # Copy iso to build dir
   # Clean up
 }
 
+usage () {
+  echo "Usage: $0 <command> <path_to_iso> <path_to_kickstart>"
+  echo "    Available commands are:"
+  echo "        setup_build_env"
+  echo "        add_kickstart_to_iso"
+  echo "        make_iso_file" 
+}
+
 ## Main ##
 main () {
-  # TODO(derek-olds): Make build_dir a flag that can be passed in.
-  build_dir=$(mktemp)
+  # TODO(derek-olds): Validate the input. 
+  build_path=$(mktemp)
+  src_iso_path=$build_path/iso_mnt
+
   case "$1" in
     setup_build_env)
       setup_build_env "$2"
@@ -40,11 +54,7 @@ main () {
       make_iso_file "$2" "$3"
       ;;
     *)
-      echo "Usage: $0 <command>" 
-      echo "    Available commands are:"
-      echo "        setup_build_env"
-      echo "        add_kickstart_to_iso"
-      echo "        make_iso_file"
+      usage
       ;;
   esac
 }
