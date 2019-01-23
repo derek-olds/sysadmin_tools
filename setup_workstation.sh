@@ -75,46 +75,48 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF
 }
 ## Main ##
-
+main () {
 # This script requires elevated privileges.
-check_root $@
+  check_root $@
 
-case "$1" in
-  host)
-    repo_setup
-    package_install
-    docker_driver
-    libvirt_setup
-    os_setup
-    host_network_setup
-    ;;
-  docker_driver)
-    docker_driver
-    ;;
-  libvirt_setup)
-    libvirt_setup
-    ;;
-  host_network_setup)
-    host_network_setup
-    ;;
-  os_setup)
-    os_setup
-    ;;
-  package_install)
-    package_install
-    ;;
-  repo_setup)
-    repo_setup
-    ;;
-  *)
-    echo "Usage $0 <command>"
-    echo "  Available commands are:"
-    echo "    host"
-    echo "    docker_driver"
-    echo "    libvert_setup"
-    echo "    host_network_setup"
-    echo "    os_setup"
-    echo "    package_install"
-    echo "    repo_setup"
-    ;;
-esac
+  case "$1" in
+    host)
+      repo_setup
+      package_install
+      docker_driver
+      libvirt_setup
+      os_setup
+      host_network_setup
+      ;;
+    docker_driver)
+      docker_driver
+      ;;
+    libvirt_setup)
+      libvirt_setup
+      ;;
+    host_network_setup)
+      host_network_setup
+      ;;
+    os_setup)
+      os_setup
+      ;;
+    package_install)
+      package_install
+      ;;
+    repo_setup)
+      repo_setup
+      ;;
+    *)
+      echo "Usage $0 <command>"
+      echo "  Available commands are:"
+      echo "    host"
+      echo "    docker_driver"
+      echo "    libvert_setup"
+      echo "    host_network_setup"
+      echo "    os_setup"
+      echo "    package_install"
+      echo "    repo_setup"
+      ;;
+  esac
+}
+main $@
