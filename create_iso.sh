@@ -9,12 +9,21 @@ add_kickstart_to_iso () {
   # validate kickstart file
   # Copy ks file to build dir
   # modify grub
+  echo "empty function"
+}
+
+check_root () {
+  if [ $EUID != 0 ]; then
+    sudo "$0" "$@"
+    exit $?
+  fi
 }
 
 make_iso_file () {
   # generate iso image
   # enable uefi
   # implant md5 checksum
+  echo "empty function"
 }
 
 setup_build_env () {
@@ -24,9 +33,15 @@ setup_build_env () {
     isomd5sum \
     genisoimage
   # mount iso
-  
+  mkdir -p mnt_iso_path
+  if [ -a $1 ]; then
+    mount $1 mnt_iso_path
+  fi
   # Copy iso to build dir
+  mkdir -p new_iso_path
+  cp mnt_iso_path/. new_iso_path
   # Clean up
+  umount mnt_iso_path
 }
 
 usage () {
@@ -34,14 +49,16 @@ usage () {
   echo "    Available commands are:"
   echo "        setup_build_env"
   echo "        add_kickstart_to_iso"
-  echo "        make_iso_file" 
+  echo "        make_iso_file"
 }
 
 ## Main ##
 main () {
-  # TODO(derek-olds): Validate the input. 
+  check_root $@
+  # TODO(derek-olds): Validate the input.
   build_path=$(mktemp)
-  src_iso_path=$build_path/iso_mnt
+  mnt_iso_path="$build_path"/iso_mnt
+  new_iso_path="$build_path"/net_iso
 
   case "$1" in
     setup_build_env)
