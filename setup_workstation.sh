@@ -2,6 +2,9 @@
 set -e
 # A script to set up a developement environment on a New Centos7 Workstation.
 
+# Global to set the location of the install log.
+INSTALL_LOG="/usr/local/sysadmintools/install_log.txt"
+
 ## Functions ##
 check_root () {
   if [ $EUID != 0 ]; then
@@ -26,6 +29,15 @@ host_network_setup () {
   cat > /etc/sysctl.d/98-libvirt.conf << EOF
 net.ipv4.ip_forward = 1
 EOF
+}
+install_log_get () {
+  while read -r line; do
+    echo "${line}"
+  done < "${INSTALL_LOG}"
+}
+install_log_set () {
+  echo $(date) >> "${INSTALL_LOG}"
+  echo "$@" >> "${INSTALL_LOG}"
 }
 os_setup () {
   systemctl enable sshd
@@ -78,6 +90,7 @@ EOF
 main () {
 # This script requires elevated privileges.
   check_root $@
+  install_log_set
 
   case "$1" in
     host)
@@ -116,6 +129,8 @@ main () {
       echo "    os_setup"
       echo "    package_install"
       echo "    repo_setup"
+      echo "Install Log:"
+      install_log_get
       ;;
   esac
 }
