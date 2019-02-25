@@ -3,7 +3,8 @@ set -e
 # A script to set up a developement environment on a New Centos7 Workstation.
 
 # Global to set the location of the install log.
-INSTALL_LOG="/usr/local/sysadmintools/install_log.txt"
+INSTALL_LOG_PATH="/var/log/sysadmintools"
+INSTALL_LOG="${INSTALL_LOG_PATH}/install_log.log"
 
 ## Functions ##
 check_root () {
@@ -36,8 +37,11 @@ install_log_get () {
   done < "${INSTALL_LOG}"
 }
 install_log_set () {
+  if [ ! -d "${INSTALL_LOG_PATH}" ]; then
+    mkdir -p "${INSTALL_LOG_PATH}"
+  fi
   echo $(date) >> "${INSTALL_LOG}"
-  echo "$@" >> "${INSTALL_LOG}"
+  echo "$0 $@" >> "${INSTALL_LOG}"
 }
 os_setup () {
   systemctl enable sshd
@@ -90,7 +94,7 @@ EOF
 main () {
 # This script requires elevated privileges.
   check_root $@
-  install_log_set
+  install_log_set $@
 
   case "$1" in
     host)
