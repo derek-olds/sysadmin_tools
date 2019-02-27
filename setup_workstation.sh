@@ -36,12 +36,16 @@ install_log_get () {
     echo "${line}"
   done < "${INSTALL_LOG}"
 }
-install_log_set () {
-  if [ ! -d "${INSTALL_LOG_PATH}" ]; then
+install_log_setup () {
+  if [ -a "${INSTALL_LOG}" ]; then
+    mv "${INSTALL_LOG}" "${INSTALL_LOG}_$(date '+%d%m%Y%H%M%S')"
+  else
     mkdir -p "${INSTALL_LOG_PATH}"
   fi
   echo $(date) >> "${INSTALL_LOG}"
   echo "$0 $@" >> "${INSTALL_LOG}"
+  exec >  >(tee -ia "${INSTALL_LOG}")
+  exec 2> >(tee -ia "${INSTALL_LOG}" >&2)
 }
 os_setup () {
   systemctl enable sshd
@@ -93,8 +97,6 @@ EOF
 ## Main ##
 main () {
 # This script requires elevated privileges.
-  check_root $@
-  install_log_set $@
 
   case "$1" in
     host)
@@ -137,5 +139,9 @@ main () {
       install_log_get
       ;;
   esac
+  return
 }
+check_root $@
+install_log_setup $@
 main $@
+exit 0
