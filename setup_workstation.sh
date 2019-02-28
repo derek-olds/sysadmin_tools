@@ -12,16 +12,19 @@ check_root () {
     sudo "$0" "$@"
     exit $?
   fi
+  return
 }
 docker_driver () {
   # The kvm2 driver needs to be in the path for kubctl to use it.
   curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2
   install docker-machine-driver-kvm2 /usr/local/bin/
   rm -f docker-machine-driver-kvm2
+  return
 }
 libvirt_setup () {
   usermod -a -G libvirt $(whoami)
   newgrp libvirt
+  return
 }
 host_network_setup () {
   virsh net-define /usr/share/libvirt/networks/default.xml
@@ -30,11 +33,13 @@ host_network_setup () {
   cat > /etc/sysctl.d/98-libvirt.conf << EOF
 net.ipv4.ip_forward = 1
 EOF
+  return
 }
 install_log_get () {
   while read -r line; do
     echo "${line}"
   done < "${INSTALL_LOG}"
+  return
 }
 install_log_setup () {
   if [ -a "${INSTALL_LOG}" ]; then
@@ -46,10 +51,12 @@ install_log_setup () {
   echo "$0 $@" >> "${INSTALL_LOG}"
   exec >  >(tee -ia "${INSTALL_LOG}")
   exec 2> >(tee -ia "${INSTALL_LOG}" >&2)
+  return
 }
 os_setup () {
   systemctl enable sshd
   systemctl start sshd
+  return
 }
 package_install () {
   yum update -y
@@ -67,6 +74,7 @@ package_install () {
   screen\
   virt-install\
   vnc
+  return
 }
 repo_setup () {
   # Add EPEL repo.
@@ -93,6 +101,7 @@ gpgcheck=1
 repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
+  return
 }
 ## Main ##
 main () {
@@ -139,9 +148,8 @@ main () {
       install_log_get
       ;;
   esac
-  return
+  exit 0
 }
 check_root $@
 install_log_setup $@
 main $@
-exit 0
