@@ -1,5 +1,4 @@
 #!/usr/bin/bash
-set -e
 # A script to set up a developement environment on a New Centos7 Workstation.
 
 # Global to set the location of the install log.
@@ -8,6 +7,7 @@ INSTALL_LOG="${INSTALL_LOG_PATH}/install_log.log"
 
 ## Functions ##
 check_root () {
+  echo "checking root."
   if [ $EUID != 0 ]; then
     sudo "$0" "$@"
     exit $?
@@ -15,33 +15,42 @@ check_root () {
   return
 }
 docker_driver () {
+  echo "Starting docker_driver."
   # The kvm2 driver needs to be in the path for kubctl to use it.
   curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2
   install docker-machine-driver-kvm2 /usr/local/bin/
   rm -f docker-machine-driver-kvm2
+  echo "docker_driver complete."
   return
 }
 libvirt_setup () {
+  echo "Starting libvirt_setup."
   usermod -a -G libvirt $(whoami)
-  newgrp libvirt
+  # newgrp libvirt
+  echo "libvirt_setup complete."
   return
 }
 host_network_setup () {
+  echo "Starting host_network_setup."
   virsh net-define /usr/share/libvirt/networks/default.xml
   virsh net-autostart default
   virsh net-start default
   cat > /etc/sysctl.d/98-libvirt.conf << EOF
 net.ipv4.ip_forward = 1
 EOF
+  echo "host_network_setup complete."
   return
 }
 install_log_get () {
+  echo "Starting install_log_get."
   while read -r line; do
     echo "${line}"
   done < "${INSTALL_LOG}"
+  echo "install_log_get complete."
   return
 }
 install_log_setup () {
+  echo "Starting install_log_setup."
   if [ -a "${INSTALL_LOG}" ]; then
     mv "${INSTALL_LOG}" "${INSTALL_LOG}_$(date '+%d%m%Y%H%M%S')"
   else
@@ -49,16 +58,18 @@ install_log_setup () {
   fi
   echo $(date) >> "${INSTALL_LOG}"
   echo "$0 $@" >> "${INSTALL_LOG}"
-  exec >  >(tee -ia "${INSTALL_LOG}")
-  exec 2> >(tee -ia "${INSTALL_LOG}" >&2)
+  echo "install_log_setup complete."
   return
 }
 os_setup () {
+  echo "Starting os_setup."
   systemctl enable sshd
   systemctl start sshd
+  echo "os_setup complete."
   return
 }
 package_install () {
+  echo "Starting package_install."
   yum update -y
   yum install -y\
   bash-completion\
@@ -75,9 +86,11 @@ package_install () {
   screen\
   virt-install\
   vnc
+  echo "package_install complete."
   return
 }
 repo_setup () {
+  echo "Starting repo_setup."
   # Add EPEL repo.
   yum install -y\
   https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -103,6 +116,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
   return
+  echo "repo_setup complete."
 }
 ## Main ##
 main () {
@@ -146,11 +160,10 @@ main () {
       echo "    package_install"
       echo "    repo_setup"
       echo "Install Log:"
-      install_log_get
       ;;
   esac
   exit 0
 }
 check_root $@
 install_log_setup $@
-main $@
+main $@ 1>"${INSTALL_LOG}" 2>&1
