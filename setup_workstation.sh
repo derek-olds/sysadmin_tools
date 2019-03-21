@@ -70,6 +70,7 @@ package_install () {
   libvirt\
   libvirt-daemon-kvm\
   libvirt-python\
+  mod_ssl\
   qemu-kvm\
   screen\
   virt-install\
