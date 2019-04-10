@@ -82,6 +82,7 @@ package_install () {
   libvirt-daemon-kvm\
   libvirt-python\
   mod_ssl\
+  net-tools\
   qemu-kvm\
   screen\
   virt-install\
