@@ -2,8 +2,9 @@
 # A script to set up a developement environment on a New Centos7 Workstation.
 
 # Global to set the location of the install log.
-INSTALL_LOG_PATH="/var/log/sysadmintools"
+INSTALL_LOG_PATH="/var/log/sysadmin_tools"
 INSTALL_LOG="${INSTALL_LOG_PATH}/install_log.log"
+DATA_DIR="/opt/sysadmin_tools"
 
 ## Functions ##
 check_root () {
@@ -13,6 +14,10 @@ check_root () {
     exit $?
   fi
   return
+}
+chef_setup () {
+  curl https://omnitruck.chef.io/install.sh | sudo bash -s -- -P chef-workstation -c stable
+  mkdir -p "${DATA_DIR}"/chef-repo
 }
 docker_driver () {
   echo "Starting docker_driver."
@@ -84,6 +89,7 @@ package_install () {
   mod_ssl\
   net-tools\
   qemu-kvm\
+  vim\
   screen\
   virt-install\
   vnc
